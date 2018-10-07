@@ -636,6 +636,7 @@ const Game = {
         ctx.outputSpeech.push(settings.AUDIO.INCORRECT_ANSWER_AUDIO);
         ctx.outputSpeech.push(responseMessage.outputSpeech)
         sessionAttributes.correct = false;
+        Game.askQuestion(handlerInput, true);
       } else {
         sessionAttributes.currentQuestion += 1;
 
