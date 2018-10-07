@@ -465,7 +465,10 @@ const Game = {
     logger.debug(questions);
     for (var i = 0; i < questions.length; ++i) {
       var question = questions[i];
-      if(question.categoryName === category && question.questionValue === questionValue) {
+      logger.debug(question.index);
+      logger.debug(question.categoryName);
+      logger.debug(question.questionValue);
+      if(question.categoryName == category && question.questionValue == questionValue) {
         sessionAttributes.currentQuestion = question.index;
         logger.debug("question.index " + question.index);
         logger.debug("sessionAttributes.currentQuestion: " + sessionAttributes.currentQuestion);
@@ -532,9 +535,11 @@ const Game = {
 
     // get the current question from the question bank so we can compare answers
     let currentQuestionIndex = parseInt(sessionAttributes.currentQuestion || 1, 10);
+    logger.debug("sessionAttributes.currentQuestion: " + sessionAttributes.currentQuestion);
     //let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestionIndex - 1];
     let questions = ctx.t('QUESTIONS');
     let currentQuestion = questions.find(q => q.index == currentQuestionIndex);
+    logger.debug("currentQuestion: " + currentQuestion);
     // get the answers
     let answers = currentQuestion.answers.map(a => gameHelper.normalizeAnswer(a));
     // get the correct answer

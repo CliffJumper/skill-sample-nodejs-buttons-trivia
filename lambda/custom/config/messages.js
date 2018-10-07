@@ -14,7 +14,6 @@
 const questions = require('./questions');
 const settings = require('./settings');
 const GAME_TITLE = 'Celebrity Jeopardy';
-const categories = require('./categories');
 const questions_with_categories = require('./questions_with_categories')
 
 const messages = {
