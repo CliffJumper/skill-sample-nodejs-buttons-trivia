@@ -13,18 +13,22 @@
 
 const questions = require('./questions');
 const settings = require('./settings');
-const GAME_TITLE = 'Better with Buttons Trivia';
+const GAME_TITLE = 'Celebrity Jeopardy';
+const categories = require('./categories');
+const questions_with_categories = require('./questions_with_categories')
 
 const messages = {
   en: {
     translation: {
-      'QUESTIONS': questions.questions_en_US,
+      //'QUESTIONS': questions.questions_en_US,
+      //'QUESTION_CATEGORIES' : categories.question_categories,
+      'QUESTIONS' : questions_with_categories.questions,
       'GENERAL_HELP': {
         outputSpeech: 'To get started just ask me to play a game. ' +
           'What would you like to do? ',
         reprompt: "Sorry, I didn't catch that, what would you like to do next?",
         displayTitle: GAME_TITLE + ' - Help',
-        displayText: 'This is a trivia game for the Echo Buttons. ' +
+        displayText: 'This is the Celebrity Jeopardy game. ' +
           'To get started just ask me to play a game.'
       },
       'UNHANDLED_REQUEST': {
@@ -40,9 +44,8 @@ const messages = {
       //--------------------  Start Game Related Prompts -------------------------------------------
       //
       'START_GAME': {
-        outputSpeech: "Welcome to " + GAME_TITLE + ". This game supports up to " +
-          settings.GAME.MAX_PLAYERS + " players. " +
-          "How many players are there?",
+        //outputSpeech: "<audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/intro.mp3\"/>Welcome to " + GAME_TITLE + ". This game supports up to 3 players.  How many players are there?",
+        outputSpeech: "<audio src=\"https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02.mp3\"/>Welcome to " + GAME_TITLE + ". This game supports up to 3 players.  How many players are there?",
         reprompt: "How many players?",
         displayTitle: GAME_TITLE + " - Welcome",
         displayText: "Welcome to " + GAME_TITLE + ". This game supports up to " +
@@ -83,7 +86,7 @@ const messages = {
       //--------------------  Roll Call Related Prompts -------------------------------------------
       //
       'ROLL_CALL_HELP': {
-        outputSpeech: 'This is a trivia game for Echo Buttons. ' +
+        outputSpeech: 'This is the Celebrity Jeopardy game. ' +
           'In order to play the game, each player must check in by ' +
           'pressing an Echo Button. Would you like to continue and ' +
           'check players in for the game?',

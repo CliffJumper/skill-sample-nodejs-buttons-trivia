@@ -109,7 +109,8 @@ const gamePlayHandlers = {
     handle(handlerInput) {
       logger.debug('GAME.YesHandler: handle');
 
-      Game.askQuestion(handlerInput, false);
+      //Game.askQuestion(handlerInput, false); Changed by HA - Commented out to ask Category instead
+      Game.askCategory(handlerInput,false);
       return handlerInput.responseBuilder.getResponse();
     }
   },
@@ -132,6 +133,27 @@ const gamePlayHandlers = {
     handle(handlerInput) {
       logger.debug('GAME.AnswerHandler: handle');
       Game.answerQuestion(handlerInput);
+      return handlerInput.responseBuilder.getResponse();
+    }
+  },
+  /**
+   * The player is choosing a category.
+   */
+  CategoryHandler: {
+    canHandle(handlerInput) {
+      logger.debug('GAME.CategoryHandler: canHandle');
+      let {
+        attributesManager,
+        requestEnvelope
+      } = handlerInput;
+      return requestEnvelope.request.type === 'IntentRequest' &&
+        (requestEnvelope.request.intent.name === 'CategorySelectIntent') &&
+          (attributesManager.getSessionAttributes().STATE === settings.STATE.BUTTON_GAME_STATE ||
+          attributesManager.getSessionAttributes().STATE === settings.STATE.BUTTONLESS_GAME_STATE);
+    },
+    handle(handlerInput) {
+      logger.debug('GAME.CategoryHandler: handle');
+      Game.answerCategory(handlerInput);
       return handlerInput.responseBuilder.getResponse();
     }
   },

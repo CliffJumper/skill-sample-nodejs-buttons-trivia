@@ -25,7 +25,7 @@ module.exports = (function () {
    *  It helps protect against spamming your skill.
    *  Replace this with the value of your skill ID to enable this protection.
    */
-  const APP_ID = '';
+  const APP_ID = 'amzn1.ask.skill.1969eb0e-beed-4d9e-828d-3b45b0a61498';
 
   /**
    * GAME - Game settings
@@ -44,12 +44,12 @@ module.exports = (function () {
    *          was if everyone has answered incorrectly
    */
   const GAME_OPTIONS = {
-    MAX_PLAYERS: 4,
-    QUESTIONS_PER_GAME: 6,
-    QUESTIONS_PER_ROUND: 2,
+    MAX_PLAYERS: 3,
+    QUESTIONS_PER_GAME: 18,
+    QUESTIONS_PER_ROUND: 18,
     ANSWER_SIMILARITY: .60,
     MAX_ANSWERS_PER_QUESTION: 4,
-    SHUFFLE_QUESTIONS: true,
+    SHUFFLE_QUESTIONS: false,
     NOTIFY_CORRECT_ANSWER: true
   };
 
@@ -75,7 +75,7 @@ module.exports = (function () {
    */
   const STORAGE = {
     // Session persistence
-    SESSION_TABLE: 'better-with-buttons-trivia'
+    SESSION_TABLE: 'celebrity-jeopardy'
   };
 
   /**

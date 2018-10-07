@@ -275,6 +275,7 @@ const Game = {
       delete sessionAttributes.answeringButton;
       delete sessionAttributes.answeringPlayer;
       delete sessionAttributes.currentQuestion;
+      delete sessionAttributes.currentCategory;
       delete sessionAttributes.correct;
       delete sessionAttributes.scores;
       delete sessionAttributes.buttons;
@@ -371,10 +372,12 @@ const Game = {
         }
       case 'answer_interstitial_event':
         {
+          logger.debug('Answer Interstitial Event');
           let questions = ctx.t('QUESTIONS');
           let currentQuestion = parseInt(sessionAttributes.currentQuestion || 1, 10);
-          let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestion - 1];
-          let triviaQuestion = questions.find(q => q.index == shuffledQuestionIndex);
+          logger.debug(currentQuestion);
+          //let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestion - 1];
+          let triviaQuestion = questions.find(q => q.index == currentQuestion);
 
           let responseMessage = ctx.t('ASK_QUESTION_DISPLAY', {
             question_number: currentQuestion
@@ -405,7 +408,78 @@ const Game = {
       'animations': animations.BasicAnimations.SolidAnimation(1, "black", 100)
     }));
   },
+/**
+   * Function for receiving voice input to select a category
+   */
+  answerCategory: function (handlerInput) {
+    logger.debug('GAME: answerCategory');
+    let {
+      requestEnvelope,
+      attributesManager
+    } = handlerInput;
+    let ctx = attributesManager.getRequestAttributes();
+    let sessionAttributes = attributesManager.getSessionAttributes();
 
+    // if (!sessionAttributes.waitingForCategory) {
+    //   delete sessionAttributes.correct;
+    //   let promptToContinue =
+    //     parseInt(sessionAttributes.currentQuestion || 0, 10) <= settings.GAME.QUESTIONS_PER_GAME;
+    //   if (promptToContinue) {
+    //     Game.stopCurrentInputHandler(handlerInput);
+    //     let responseMessage = ctx.t('ANSWER_BEFORE_QUESTION')
+    //     ctx.outputSpeech.push(responseMessage.outputSpeech);
+    //     ctx.reprompt.push(responseMessage.reprompt);
+    //     ctx.openMicrophone = promptToContinue;
+    //     return;
+    //   } else {
+    //     Game.endGame(handlerInput, true);
+    //     return;
+    //   }
+    // } else if ( sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE &&
+    //   (!sessionAttributes.answeringButton || !sessionAttributes.answeringPlayer)) {
+    //   delete sessionAttributes.correct;
+    //   let responseMessage = ctx.t('ANSWER_WITHOUT_BUTTONS');
+    //   ctx.outputSpeech.push(responseMessage.outputSpeech);
+    //   ctx.openMicrophone = false;
+    //   return;
+    // }
+
+    // get the category out of the request event
+    let category = gameHelper.normalizeAnswer(requestEnvelope.request.intent.slots.Category.value);
+    let questionValue = gameHelper.normalizeAnswer(requestEnvelope.request.intent.slots.Value.value);
+    logger.debug(category);
+    logger.debug(questionValue);
+    // if (answer == '') {
+    //   delete sessionAttributes.correct;
+    //   let responseMessage = ctx.t('MISUNDERSTOOD_ANSWER');
+    //   ctx.outputSpeech.push(responseMessage.outputSpeech);
+    //   ctx.reprompt.push(responseMessage.reprompt);
+    //   ctx.openMicrophone = true;
+    //   return;
+    // }
+
+    sessionAttributes.waitingForAnswer = false; //TODO: Verify if this is correct
+
+    // get the selected question from the question bank so we can compare answers
+    let questions = ctx.t('QUESTIONS');
+    logger.debug(questions);
+    for (var i = 0; i < questions.length; ++i) {
+      var question = questions[i];
+      if(question.categoryName === category && question.questionValue === questionValue) {
+        sessionAttributes.currentQuestion = question.index;
+        logger.debug("question.index " + question.index);
+        logger.debug("sessionAttributes.currentQuestion: " + sessionAttributes.currentQuestion);
+        break;
+      }
+    }
+    
+    //let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestionIndex - 1];
+    
+    // flag to determine if we have a match
+    var answered = false;
+
+    Game.askQuestion(handlerInput, true);
+  },
   /**
    * Function for receiving voice input to answer a question
    */
@@ -458,9 +532,9 @@ const Game = {
 
     // get the current question from the question bank so we can compare answers
     let currentQuestionIndex = parseInt(sessionAttributes.currentQuestion || 1, 10);
-    let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestionIndex - 1];
+    //let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestionIndex - 1];
     let questions = ctx.t('QUESTIONS');
-    let currentQuestion = questions.find(q => q.index == shuffledQuestionIndex);
+    let currentQuestion = questions.find(q => q.index == currentQuestionIndex);
     // get the answers
     let answers = currentQuestion.answers.map(a => gameHelper.normalizeAnswer(a));
     // get the correct answer
@@ -592,15 +666,14 @@ const Game = {
       }
     }
     // Move on to asking the same/next question depending on the state
-    Game.askQuestion(handlerInput, true);
+    Game.askCategory(handlerInput, true);
   },
   /**
-   * Function: askQuestion
+   * Function: askCategory
    *
-   * Function to gather the built responses, add them to the overall response and handle the
-   * logic of retrieving and asking the next/same question depending on if the user got it right.
+   * Function to ask the player to select the category
    */
-  askQuestion: function (handlerInput, isFollowingAnswer) {
+  askCategory: function (handlerInput, isFollowingAnswer) {
     let {
       requestEnvelope,
       attributesManager
@@ -608,8 +681,9 @@ const Game = {
     let sessionAttributes = attributesManager.getSessionAttributes();
     let ctx = attributesManager.getRequestAttributes();
     let questions = ctx.t('QUESTIONS');
+    let categories = ctx.t('QUESTION_Categories');
 
-    logger.debug('GAME: askQuestion (currentQuestion = ' + sessionAttributes.currentQuestion + ')');
+    logger.debug('GAME: askCategory (currentQuestion = ' + sessionAttributes.currentQuestion + ')');
 
     if (!isFollowingAnswer){
       // Clean repeat state
@@ -644,10 +718,11 @@ const Game = {
     }
 
     let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestion - 1];
-    let nextQuestion = questions.find(q => q.index == shuffledQuestionIndex);
-    logger.debug('Ask question: ' + currentQuestion + ' of ' + settings.GAME.QUESTIONS_PER_GAME +
-      ', next question: ' + JSON.stringify(nextQuestion, null, 2));
-    if (!nextQuestion || currentQuestion > settings.GAME.QUESTIONS_PER_GAME) {
+    //let nextQuestion = questions.find(q => q.index == shuffledQuestionIndex);
+    let nextQuestion = currentQuestion + 1;
+    logger.debug('Ask question: ' + currentQuestion + ' of ' + settings.GAME.QUESTIONS_PER_GAME)// +
+    //  ', next question: ' + JSON.stringify(nextQuestion, null, 2));
+    if (!nextQuestion > settings.GAME.QUESTIONS_PER_GAME) {
       /* call the 'endGame' helper to process the end of game logic */
       return Game.endGame(handlerInput, true);
     } else {
@@ -657,15 +732,15 @@ const Game = {
       // check to see if it's time to generate and recite a game round summary
       //  if it is time, append the round summary to the outputSpeech
       //  before we go further and generate the question outputSpeech
-      if (currentQuestion > 2 &&
-        !sessionAttributes.repeat &&
-        currentQuestion < settings.GAME.QUESTIONS_PER_GAME &&
-        ((currentQuestion - 1) % questionsPerRound) === 0) {
-        interstitialDelay += 12000;
-        let roundSummary = gameHelper.generateRoundSummaryNarration(handlerInput, sessionAttributes.currentQuestion,
-          sessionAttributes.scores, sessionAttributes.playerCount);
-        ctx.outputSpeech.push(roundSummary);
-      }
+      // if (currentQuestion > 2 &&
+      //   !sessionAttributes.repeat &&
+      //   currentQuestion < settings.GAME.QUESTIONS_PER_GAME &&
+      //   ((currentQuestion - 1) % questionsPerRound) === 0) {
+      //   interstitialDelay += 12000;
+      //   let roundSummary = gameHelper.generateRoundSummaryNarration(handlerInput, sessionAttributes.currentQuestion,
+      //     sessionAttributes.scores, sessionAttributes.playerCount);
+      //   ctx.outputSpeech.push(roundSummary);
+      // }
 
       if ('correct' in sessionAttributes) {
         // player answered the question - either correctly, or incorrectly
@@ -692,17 +767,175 @@ const Game = {
       // Use a shorter break for buttonless games
       let breakTime = sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE ? 4 : 1;
       let answers = `<break time='${breakTime}s'/> Is it `;
-      if (nextQuestion.answers) {
-        if (nextQuestion.answers.length > 1) {
-          answers += nextQuestion.answers.slice(0, -1).join(', ') + ", or, " +
-            nextQuestion.answers[nextQuestion.answers.length - 1];
-        } else {
-          answers = nextQuestion.answers[0];
+      // if (nextQuestion.answers) {
+      //   if (nextQuestion.answers.length > 1) {
+      //     answers += nextQuestion.answers.slice(0, -1).join(', ') + ", or, " +
+      //       nextQuestion.answers[nextQuestion.answers.length - 1];
+      //   } else {
+      //     answers = nextQuestion.answers[0];
+      //   }
+      //   answers += "?";
+      // }
+      //ctx.outputSpeech.push(nextQuestion.question);
+      //ctx.outputSpeech.push(answers);
+      ctx.outputSpeech.push("Please select a category and value for the next question.")
+
+      // add waiting sound only for button games, add a reprompt for buttonless
+      // if (sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE) {
+      //   ctx.outputSpeech.push(settings.AUDIO.WAITING_FOR_BUZZ_IN_AUDIO);
+      // } else {
+      //   ctx.reprompt.push(answers);
+      // }
+
+      if (sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE){
+        // Button game - prep the buttons for buzz in
+        // Game.animateButtonsAfterAnswer(handlerInput);
+        // Game.sendAnswerInterstitial(handlerInput, interstitialDelay);
+
+        // delete sessionAttributes.answeringButton;
+        // delete sessionAttributes.answeringPlayer;
+        sessionAttributes.waitingForAnswer = true;
+        ctx.openMicrophone = true;
+      } else {
+        // Buttonless game - be ready for an answer immediately from the only player
+        sessionAttributes.waitingForAnswer = true;
+        sessionAttributes.answeringPlayer = 1;
+        ctx.openMicrophone = true;
+
+        // Buttonless game - render the ui for the question immediately as well
+        let responseMessage = ctx.t('ASK_QUESTION_DISPLAY', {
+          question_number: currentQuestion
+        });
+        responseMessage.displayText = nextQuestion.question;
+        if (typeof sessionAttributes.correct !== 'undefined') {
+          responseMessage.image = sessionAttributes.correct ?
+          settings.pickRandom(settings.IMAGES.CORRECT_ANSWER_IMAGES) :
+          settings.pickRandom(settings.IMAGES.INCORRECT_ANSWER_IMAGES);
         }
-        answers += "?";
+        ctx.render(handlerInput, responseMessage);
       }
-      ctx.outputSpeech.push(nextQuestion.question);
-      ctx.outputSpeech.push(answers);
+
+      delete sessionAttributes.correct;
+    }
+  },
+  /**
+   * Function: askQuestion
+   *
+   * Function to gather the built responses, add them to the overall response and handle the
+   * logic of retrieving and asking the next/same question depending on if the user got it right.
+   */
+  askQuestion: function (handlerInput, isFollowingAnswer) {
+    let {
+      requestEnvelope,
+      attributesManager
+    } = handlerInput;
+    let sessionAttributes = attributesManager.getSessionAttributes();
+    let ctx = attributesManager.getRequestAttributes();
+    let questions = ctx.t('QUESTIONS');
+
+    logger.debug('GAME: askQuestion (currentQuestion = ' + sessionAttributes.currentQuestion + ')');
+
+    if (!isFollowingAnswer){
+      // Clean repeat state
+      delete sessionAttributes.repeat;
+      delete sessionAttributes.incorrectAnswerButtons;
+    }
+
+    sessionAttributes.inputHandlerId = requestEnvelope.request.requestId;
+
+    let currentQuestion;
+    if ('currentQuestion' in sessionAttributes) {
+      currentQuestion = parseInt(sessionAttributes.currentQuestion, 10);
+      logger.debug("currentQuestion:  " + currentQuestion);
+    } else {
+      currentQuestion = 1;
+      sessionAttributes.currentQuestion = 1;
+    }
+
+    // if (!sessionAttributes.orderedQuestions ||
+    //   (currentQuestion === 1 && !('repeat' in sessionAttributes))) {
+    //   if (settings.GAME.SHUFFLE_QUESTIONS) {
+    //     logger.debug('GamePlay: producing ordered question list for new game (using shuffling)!');
+    //     // if this is the first question, then shuffle the questions
+    //     let orderedQuestions = gameHelper.shuffleList(questions.map(q => q.index))
+    //       .slice(0, settings.GAME.QUESTIONS_PER_GAME);
+    //     // and store the ordered list of questions in the attributes
+    //     sessionAttributes.orderedQuestions = orderedQuestions;
+    //   } else {
+    //     logger.debug('GamePlay: producing ordered question list for new game (shuffling disabled)!');
+    //     sessionAttributes.orderedQuestions = questions.map(q => q.index)
+    //       .slice(0, settings.GAME.QUESTIONS_PER_GAME);
+    //   }
+    // }
+
+    // let shuffledQuestionIndex = sessionAttributes.orderedQuestions[currentQuestion - 1];
+    let nextQuestion = currentQuestion + 1;
+    logger.debug('Ask question: ' + currentQuestion + ' of ' + settings.GAME.QUESTIONS_PER_GAME)// +
+    //  ', next question: ' + JSON.stringify(nextQuestion, null, 2));
+    if (nextQuestion > settings.GAME.QUESTIONS_PER_GAME) {
+      /* call the 'endGame' helper to process the end of game logic */
+      return Game.endGame(handlerInput, true);
+    } else {
+      let interstitialDelay = isFollowingAnswer ? 6000 : 3000;
+      let questionsPerRound = parseInt(settings.GAME.QUESTIONS_PER_ROUND, 10);
+
+      // check to see if it's time to generate and recite a game round summary
+      //  if it is time, append the round summary to the outputSpeech
+      //  before we go further and generate the question outputSpeech
+      // if (currentQuestion > 2 &&
+      //   !sessionAttributes.repeat &&
+      //   currentQuestion < settings.GAME.QUESTIONS_PER_GAME &&
+      //   ((currentQuestion - 1) % questionsPerRound) === 0) {
+      //   interstitialDelay += 12000;
+      //   let roundSummary = gameHelper.generateRoundSummaryNarration(handlerInput, sessionAttributes.currentQuestion,
+      //     sessionAttributes.scores, sessionAttributes.playerCount);
+      //   ctx.outputSpeech.push(roundSummary);
+      // }
+
+      if ('correct' in sessionAttributes) {
+        // player answered the question - either correctly, or incorrectly
+        let messageKey = sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE ?
+          'ANSWER_QUESTION_INCORRECT_DISPLAY' : 'SINGLE_PLAYER_ANSWER_QUESTION_INCORRECT_DISPLAY';
+        let image = settings.pickRandom(settings.IMAGES.INCORRECT_ANSWER_IMAGES);
+        if (sessionAttributes.correct) {
+          messageKey = sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE ?
+          'ANSWER_QUESTION_CORRECT_DISPLAY' : 'SINGLE_PLAYER_ANSWER_QUESTION_CORRECT_DISPLAY';
+          image = settings.pickRandom(settings.IMAGES.CORRECT_ANSWER_IMAGES);
+        }
+        let responseMessage = ctx.t(messageKey, {
+          player_number: sessionAttributes.answeringPlayer
+        });
+        responseMessage.image = image;
+        ctx.render(handlerInput, responseMessage);
+      } else {
+        // if 'correct' is missing from attributes, this is the first question asked
+        let messageKey = currentQuestion === 1 ? 'ASK_FIRST_QUESTION_NEW_GAME_DISPLAY' : 'ASK_FIRST_QUESTION_RESUME_DISPLAY';
+        let responseMessage = ctx.t(messageKey);
+        ctx.render(handlerInput, responseMessage);
+      }
+
+      // Use a shorter break for buttonless games
+      // let breakTime = sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE ? 4 : 1;
+      // let answers = `<break time='${breakTime}s'/> Is it `;
+      // if (nextQuestion.answers) {
+      //   if (nextQuestion.answers.length > 1) {
+      //     answers += nextQuestion.answers.slice(0, -1).join(', ') + ", or, " +
+      //       nextQuestion.answers[nextQuestion.answers.length - 1];
+      //   } else {
+      //     answers = nextQuestion.answers[0];
+      //   }
+      //   answers += "?";
+      // }
+      for (var i = 0; i < questions.length; ++i) {
+        var question = questions[i];
+        if(question.index === currentQuestion) {
+          ctx.outputSpeech.push(question.question);
+          logger.debug(ctx.outputSpeech);
+          break;
+        }
+      }
+      //ctx.outputSpeech.push(nextQuestion.question);
+      //ctx.outputSpeech.push(answers);
 
       // add waiting sound only for button games, add a reprompt for buttonless
       if (sessionAttributes.STATE === settings.STATE.BUTTON_GAME_STATE) {

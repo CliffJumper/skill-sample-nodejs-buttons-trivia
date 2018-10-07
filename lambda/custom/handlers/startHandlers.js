@@ -51,9 +51,10 @@ const startHandlers = {
        * If we have an active game ask to resume, otherwise start a new game and ask how many players.
        */
       let responseMessage;
-      if (validPlayerCount && gameInProgress) {
-        responseMessage = ctx.t('ASK_TO_RESUME', {'player_count': sessionAttributes.playerCount});
-      } else {
+      //HA - Commented out the following lines to always force start of a new game
+      //if (validPlayerCount && gameInProgress) {
+      //  responseMessage = ctx.t('ASK_TO_RESUME', {'player_count': sessionAttributes.playerCount});
+      //} else {
         responseMessage = ctx.t('START_GAME');
 
         // it's a new game so delete all attributes
@@ -61,7 +62,7 @@ const startHandlers = {
         for (let k = 0; k < attributeNames.length; k++) {
           delete sessionAttributes[attributeNames[k]];
         }
-      }
+      //}
       ctx.outputSpeech.push(responseMessage.outputSpeech);
       ctx.reprompt.push(responseMessage.reprompt);
       ctx.render(handlerInput, responseMessage);

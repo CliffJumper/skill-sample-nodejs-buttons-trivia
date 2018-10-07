@@ -34,6 +34,7 @@ exports.handler = function (event, context) {
       GamePlayHandlers.PlayGameHandler,
       GamePlayHandlers.EndGameHandler,
       GamePlayHandlers.YesHandler,
+      GamePlayHandlers.CategoryHandler,
       RollCallHandlers.YesHandler,
       RollCallHandlers.NoHandler,
       RollCallHandlers.GameEventHandler,
