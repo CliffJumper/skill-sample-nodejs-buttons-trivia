@@ -113,7 +113,8 @@ const messages = {
       },
       'ROLL_CALL_COMPLETE': {
         outputSpeech: ["Great! We can start the game. Are you ready?",
-        "Awesome. All players registered. Are you ready to start the game?"],
+        "Awesome. All players registered. <audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/fillBoard.mp3\"/> " + 
+        "Are you ready to start the game?"],
         reprompt: "Ready to start the game?",
         displayTitle: GAME_TITLE + " - Welcome",
         displayText: "Are you ready to start the game?"
