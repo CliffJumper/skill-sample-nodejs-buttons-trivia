@@ -33,19 +33,13 @@
                   "name": "PlayerCount",
                   "slots": [
                       {
-                          "name": "players",
-                          "type": "AMAZON.NUMBER"
+                          "name": "Players",
+                          "type": "NumPlayers"
                       }
                   ],
                   "samples": [
-                      "{players} players",
-                      "there are {players}",
-                      "there are {players} players",
-                      "there are {players} of us",
-                      "we have {players}",
-                      "we have {players} players",
-                      "there will be {players}",
-                      "there will be {players} players"
+                      "there are {Players} players",
+                      "{Players}"
                   ]
               },
               {
@@ -81,6 +75,8 @@
                       }
                   ],
                   "samples": [
+                      "what are {answers}",
+                      "what is {answers} ",
                       "{answers}"
                   ]
               },
@@ -191,7 +187,7 @@
                   "slots": [
                       {
                           "name": "players",
-                          "type": "AMAZON.NUMBER"
+                          "type": "NumPlayers"
                       }
                   ],
                   "samples": [
@@ -211,6 +207,7 @@
                       }
                   ],
                   "samples": [
+                      "{Category} for {Value}",
                       "Let's try {Category} for {Value} please",
                       "Let's go with {Category} for {Value} please",
                       "How about {Category} for {Value}",
@@ -222,6 +219,56 @@
               {
                   "name": "answers",
                   "values": [
+                      {
+                          "name": {
+                              "value": "ECS"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "docker"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "sixty six"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "thirteen"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "firefly"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "top golf"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "terraform"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "cloud custodian"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "validated and dropzone s3 buckets"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "sys level two"
+                          }
+                      },
                       {
                           "name": {
                               "value": "fox"
@@ -414,27 +461,52 @@
                   "values": [
                       {
                           "name": {
-                              "value": "Trusted I D"
+                              "value": "container your enthusiasm"
                           }
                       },
                       {
                           "name": {
-                              "value": "C E P"
+                              "value": "numbers numbers numbers"
                           }
                       },
                       {
                           "name": {
-                              "value": "Core Commerce"
+                              "value": "atlanta after hours"
                           }
                       },
                       {
                           "name": {
-                              "value": "Canada"
+                              "value": "tooling around"
                           }
                       },
                       {
                           "name": {
-                              "value": "Foundations"
+                              "value": "eye spy P I I"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "foundations"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "canada"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "core commerce"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "c e p"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "trusted i d"
                           }
                       }
                   ]
@@ -442,6 +514,16 @@
               {
                   "name": "QuestionValue",
                   "values": [
+                      {
+                          "name": {
+                              "value": "850"
+                          }
+                      },
+                      {
+                          "name": {
+                              "value": "500"
+                          }
+                      },
                       {
                           "name": {
                               "value": "1000"
@@ -468,29 +550,19 @@
                           }
                       }
                   ]
-              }
-          ]
-      },
-      "dialog": {
-          "intents": [
+              },
               {
-                  "name": "CategorySelectIntent",
-                  "confirmationRequired": true,
-                  "prompts": {},
-                  "slots": [
+                  "name": "NumPlayers",
+                  "values": [
                       {
-                          "name": "Category",
-                          "type": "CategoryName",
-                          "confirmationRequired": false,
-                          "elicitationRequired": false,
-                          "prompts": {}
+                          "name": {
+                              "value": "three"
+                          }
                       },
                       {
-                          "name": "Value",
-                          "type": "QuestionValue",
-                          "confirmationRequired": false,
-                          "elicitationRequired": false,
-                          "prompts": {}
+                          "name": {
+                              "value": "two"
+                          }
                       }
                   ]
               }

@@ -43,8 +43,8 @@ const messages = {
       //--------------------  Start Game Related Prompts -------------------------------------------
       //
       'START_GAME': {
-        //outputSpeech: "<audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/intro.mp3\"/>Welcome to " + GAME_TITLE + ". This game supports up to 3 players.  How many players are there?",
-        outputSpeech: "<audio src=\"https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02.mp3\"/>Welcome to " + GAME_TITLE + ". This game supports up to 3 players.  How many players are there?",
+        outputSpeech: "<audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/intro.mp3\"/>Welcome to " + GAME_TITLE + ". I am your host - Alexa Trebek.  This game supports up to 3 players.  How many players are there?",
+        //outputSpeech: "<audio src=\"https://s3.amazonaws.com/ask-soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02.mp3\"/>Welcome to " + GAME_TITLE + ". I am your host - Alexa Trebek. This game supports up to 3 players.  How many players are there?",
         reprompt: "How many players?",
         displayTitle: GAME_TITLE + " - Welcome",
         displayText: "Welcome to " + GAME_TITLE + ". This game supports up to " +
@@ -112,9 +112,8 @@ const messages = {
         displayText: "To resume the game, each player, please press your button once!"
       },
       'ROLL_CALL_COMPLETE': {
-        outputSpeech: ["Great! We can start the game. Are you ready?",
-        "Awesome. All players registered. <audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/fillBoard.mp3\"/> " + 
-        "Are you ready to start the game?"],
+        outputSpeech: ["Awesome. All players registered. <audio src=\"https://s3.amazonaws.com/722164871386-jeopardy-assets/fillBoard.mp3\"/> " + 
+        "Here are today's categories: <break time=\"1s\"/> Eye Spy P I I. <break time=\"1s\"/>Tooling Around. <break time=\"1s\"/>Atlanta After Hours. <break time=\"1s\"/>Numbers, Numbers, Numbers. <break time=\"1s\"/>And Finally: Container your Enthusiasm. <break time=\"1s\"/>Are you ready to start the game?"],
         reprompt: "Ready to start the game?",
         displayTitle: GAME_TITLE + " - Welcome",
         displayText: "Are you ready to start the game?"

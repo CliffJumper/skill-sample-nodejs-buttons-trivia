@@ -551,49 +551,86 @@ const Game = {
     // flag to determine if we have a match
     var answered = false;
     // loop through all the matches, in case there is more than one that is good enough to consider
-    for (var i = 0; i < matches.ratings.length; ++i) {
-      var match = matches.ratings[i];
-      if (match.rating > settings.GAME.ANSWER_SIMILARITY) {
-        // Answer is the correct answer
-        if (match.target == correct_answer) {
-          // move onto the next question
-          sessionAttributes.currentQuestion += 1;
+    // for (var i = 0; i < matches.ratings.length; ++i) {
+    //   var match = matches.ratings[i];
+    //   if (match.rating > settings.GAME.ANSWER_SIMILARITY) {
+    //     // Answer is the correct answer
+    //     if (match.target == correct_answer) {
+    //       // move onto the next question
+    //       sessionAttributes.currentQuestion += 1;
 
-          // check to see if we are keeping score yet
-          if (!('scores' in sessionAttributes)) {
-            sessionAttributes.scores = {};
-            sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
-            // if this player already has a score, increment it
-          } else if (sessionAttributes.answeringPlayer in sessionAttributes.scores) {
-            sessionAttributes.scores[sessionAttributes.answeringPlayer] += 1;
-            // otherwise just start a new score
-          } else {
-            sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
-          }
+    //       // check to see if we are keeping score yet
+    //       if (!('scores' in sessionAttributes)) {
+    //         sessionAttributes.scores = {};
+    //         sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
+    //         // if this player already has a score, increment it
+    //       } else if (sessionAttributes.answeringPlayer in sessionAttributes.scores) {
+    //         sessionAttributes.scores[sessionAttributes.answeringPlayer] += 1;
+    //         // otherwise just start a new score
+    //       } else {
+    //         sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
+    //       }
 
-          let messageKey = sessionAttributes.STATE === settings.STATE.BUTTONLESS_GAME_STATE ?
-            'SINGLE_PLAYER_CORRECT_ANSWER_DURING_PLAY' : 'CORRECT_ANSWER_DURING_PLAY';
-          let responseMessage = ctx.t(messageKey, {
-            player_number: sessionAttributes.answeringPlayer
-          });
+    //       let messageKey = sessionAttributes.STATE === settings.STATE.BUTTONLESS_GAME_STATE ?
+    //         'SINGLE_PLAYER_CORRECT_ANSWER_DURING_PLAY' : 'CORRECT_ANSWER_DURING_PLAY';
+    //       let responseMessage = ctx.t(messageKey, {
+    //         player_number: sessionAttributes.answeringPlayer
+    //       });
 
-          // To change the correct answer sound, replace AUDIO.CORRECT_ANSWER_AUDIO
-          // with your audio clip by updating config/settings.js
-          ctx.outputSpeech.push(settings.AUDIO.CORRECT_ANSWER_AUDIO);
-          ctx.outputSpeech.push(responseMessage.outputSpeech)
-          // mark that the user answered this correct
-          sessionAttributes.correct = true;
+    //       // To change the correct answer sound, replace AUDIO.CORRECT_ANSWER_AUDIO
+    //       // with your audio clip by updating config/settings.js
+    //       ctx.outputSpeech.push(settings.AUDIO.CORRECT_ANSWER_AUDIO);
+    //       ctx.outputSpeech.push(responseMessage.outputSpeech)
+    //       // mark that the user answered this correct
+    //       sessionAttributes.correct = true;
 
-          // if we are asking this question for the Nth time, where N > 1, delete that flag
-          delete sessionAttributes.repeat;
-          delete sessionAttributes.incorrectAnswerButtons;
+    //       // if we are asking this question for the Nth time, where N > 1, delete that flag
+    //       delete sessionAttributes.repeat;
+    //       delete sessionAttributes.incorrectAnswerButtons;
 
-          logger.debug("Answer provided matched one of the expected answers!");
-          answered = true;
-          break;
-        }
-      }
+    //       logger.debug("Answer provided matched one of the expected answers!");
+    //       answered = true;
+    //       break;
+    //     }
+    //   }
+    // }
+
+    //hardcode a match always
+    // move onto the next question
+    sessionAttributes.currentQuestion += 1;
+
+    // check to see if we are keeping score yet
+    if (!('scores' in sessionAttributes)) {
+      sessionAttributes.scores = {};
+      sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
+      // if this player already has a score, increment it
+    } else if (sessionAttributes.answeringPlayer in sessionAttributes.scores) {
+      sessionAttributes.scores[sessionAttributes.answeringPlayer] += 1;
+      // otherwise just start a new score
+    } else {
+      sessionAttributes.scores[sessionAttributes.answeringPlayer] = 1;
     }
+
+    let messageKey = sessionAttributes.STATE === settings.STATE.BUTTONLESS_GAME_STATE ?
+      'SINGLE_PLAYER_CORRECT_ANSWER_DURING_PLAY' : 'CORRECT_ANSWER_DURING_PLAY';
+    let responseMessage = ctx.t(messageKey, {
+      player_number: sessionAttributes.answeringPlayer
+    });
+
+    // To change the correct answer sound, replace AUDIO.CORRECT_ANSWER_AUDIO
+    // with your audio clip by updating config/settings.js
+    ctx.outputSpeech.push(settings.AUDIO.CORRECT_ANSWER_AUDIO);
+    ctx.outputSpeech.push(responseMessage.outputSpeech)
+    // mark that the user answered this correct
+    sessionAttributes.correct = true;
+
+    // if we are asking this question for the Nth time, where N > 1, delete that flag
+    delete sessionAttributes.repeat;
+    delete sessionAttributes.incorrectAnswerButtons;
+
+    logger.debug("Answer provided matched one of the expected answers!");
+    answered = true;
+    
     // If we looped through the answer without a match
     if (answered === false) {
       if (sessionAttributes.STATE === settings.STATE.BUTTONLESS_GAME_STATE) {
